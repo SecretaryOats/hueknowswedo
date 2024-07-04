@@ -3,18 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Color Analysis</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Skin Color Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Upload an Image for Color Analysis</h1>
-        <form id="upload-form" enctype="multipart/form-data">
-            <input type="file" id="image-input" accept="image/*">
-            <button type="button" onclick="uploadImage()">Upload</button>
-        </form>
-        <div id="results"></div>
-    </div>
-    <script src="script.js"></script>
+    <h1>Skin Color Analyzer</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+    {% if triadic_colors %}
+        <h2>Suggested Colors:</h2>
+        <ul>
+            {% for color in triadic_colors %}
+                <li style="background-color: rgb{{color}};">RGB {{color}}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>
