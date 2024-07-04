@@ -1,51 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sauce&display=swap');
-
 body {
-    font-family: 'Open Sauce', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-    margin: 0;
-}
-
-.container {
+    font-family: Arial, sans-serif;
     text-align: center;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
+    margin: 50px;
 }
 
 form {
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
-.color-box {
-    display: inline-block;
-    width: 100px;
-    height: 100px;
-    margin: 10px;
-    text-align: center;
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
     padding: 10px;
-    color: white;
+    color: #fff;
     font-weight: bold;
 }
 
-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #333;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #555;
-}
