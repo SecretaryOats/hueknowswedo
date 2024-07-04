@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Import and Color Classification</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: lightyellow;
+            text-align: center;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            position: relative; /* Ensure body can be used as a reference for absolute positioning */
+        }
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 300px; /* Adjust as per your logo size */
+            height: auto;
+        }
+        .content-container {
+            max-width: 90%;
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 100%;
+            overflow: auto; /* Add scrollbar if necessary */
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 5px;
+        }
+        .color-box {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            margin: 5px;
+        }
+        .classification {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <img src="logo.png" class="logo">
+    <div class="content-container">
+        <h1>Import Images and Classify Colors</h1>
+        <input type="file" id="imageInput" multiple accept="image/*">
+        <button onclick="importImages()">Import</button>
+        <div id="imageContainer" class="image-container"></div>
+        <div id="colorClassification" class="classification"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+    <script>
+        function importImages() {
+            const input = document.getElementById('imageInput');
+            const imageContainer = document.getElementById('imageContainer');
+            const colorClassification = document.getElementById('colorClassification');
+
+            if (input.files.length > 0) {
+                imageContainer.innerHTML = "";
+                colorClassification.innerHTML = "";
+
+                for (let i = 0; i < input.files.length; i++) {
+                    const file = input.files[i];
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.onload = function () {
+                            const colorThief = new ColorThief();
+                            const dominantColors = colorThief.getPalette(img, 5);
+                            displayColors(dominantColors, colorClassification);
+                        };
+                        imageContainer.appendChild(img);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            } else {
+                imageContainer.innerHTML = "<p>No images selected.</p>";
+            }
+        }
+
+        function displayColors(colors, container) {
+            const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
+            const warmCool = ['Warm', 'Cool'];
+            const saturation = ['Saturated', 'Desaturated'];
+
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                container.appendChild(colorBox);
+
+                const colorInfo = document.createElement('p');
+                const season = classifySeason(color);
+                const temp = classifyWarmCool(color);
+                const sat = classifySaturation(color);
+
+                colorInfo.innerText = `Season: ${season}, ${temp}, ${sat}`;
+                container.appendChild(colorInfo);
+
+                const palette = generatePalette(color);
+                container.appendChild(document.createElement('br'));
+                container.appendChild(createPaletteElement(palette));
+            });
+        }
+
+        function classifySeason(color) {
+            const [r, g, b] = color;
+            if (r > g && g > b) return 'Autumn';
+            if (g > r && r > b) return 'Spring';
+            if (b > r && r > g) return 'Winter';
+            return 'Summer';
+        }
+
+        function classifyWarmCool(color) {
+            const [r, g, b] = color;
+            return (r + g) > b ? 'Warm' : 'Cool';
+        }
+
+        function classifySaturation(color) {
+            const [r, g, b] = color;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            return (max - min) > 100 ? 'Saturated' : 'Desaturated';
+        }
+
+        function generatePalette(color) {
+            const compColor = getComplementaryColor(color);
+            const analogColors = getAnalogousColors(color);
+            const triadicColors = getTriadicColors(color);
+            return { original: color, complementary: compColor, analogous: analogColors, triadic: triadicColors };
+        }
+
+        function getComplementaryColor([r, g, b]) {
+            return [255 - r, 255 - g, 255 - b];
+        }
+
+        function getAnalogousColors([r, g, b]) {
+            return [
+                [(r + 30) % 256, (g + 30) % 256, (b + 30) % 256],
+                [(r - 30 + 256) % 256, (g - 30 + 256) % 256, (b - 30 + 256) % 256]
+            ];
+        }
+
+        function getTriadicColors([r, g, b]) {
+            return [
+                [(r + 85) % 256, (g + 85) % 256, (b + 85) % 256],
+                [(r - 85 + 256) % 256, (g - 85 + 256) % 256, (b - 85 + 256) % 256]
+            ];
+        }
+
+        function createPaletteElement(palette) {
+            const paletteContainer = document.createElement('div');
+            paletteContainer.innerHTML = "<strong>Color Palette:</strong>";
+
+            const colors = [palette.original, palette.complementary, ...palette.analogous, ...palette.triadic];
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                paletteContainer.appendChild(colorBox);
+            });
+
+            return paletteContainer;
+        }
+    </script>
+</body>
+</html>
